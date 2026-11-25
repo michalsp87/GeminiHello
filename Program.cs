@@ -1,15 +1,17 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
-// 0. Logger: zapis do pliku tekstowego (logs/gemini-YYYYMMDD.log), tylko ważne zdarzenia
+// 0. Logger konfigurowany z appsettings.json (sekcja "Serilog"), bez zmian w kodzie
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("appsettings.json", optional: false)
+    .Build();
+
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.File(
-        path: Path.Combine("logs", "gemini-.log"),
-        rollingInterval: RollingInterval.Day,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .ReadFrom.Configuration(configuration)
     .CreateLogger();
 
 try
